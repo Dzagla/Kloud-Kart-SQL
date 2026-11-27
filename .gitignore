@@ -9,11 +9,9 @@ __pycache__/
 # Testing
 .pytest_cache/
 # Data files
-
+Resources/data/
 *.parquet
 *.xlsx
-# Allow small synthetic test data
-!data/sample/**
 # Jupyter
 .ipynb_checkpoints/
 # dbt

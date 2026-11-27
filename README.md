@@ -10,12 +10,9 @@ The repository is organized by concern into dedicated directories:
 
 ```text
 .
-├── .dockerignore              # Docker build exclusions
-├── .env                       # Local environment variables (DB credentials, connection strings)
-├── .env.example               # Template environment configuration
-├── .gitignore                 # Git ignore rules (.env)
+├── .env.example               # Template environment configuration (.env is gitignored)
+├── .gitignore                 # Git ignore rules (.env, Resources/data/)
 ├── docker-compose.yml         # Container definitions (PostgreSQL 18 & race-test runner)
-├── Dockerfile                 # Custom PostgreSQL 18 image specification
 ├── README.md                  # Project overview, architecture summary, and quickstart guide
 ├── decisions/                 # Architecture Decision Records (ADRs 001–007) in house format
 │   ├── ADR-001-preventing-stock-overselling.md
@@ -31,7 +28,7 @@ The repository is organized by concern into dedicated directories:
 │   ├── data_diagnosis.md      # Extended diagnostic audit analysis and rationale
 │   ├── improvement.md         # Documented justification for reorder priority list
 │   └── measurement_report.md  # Detailed benchmark report (median, p95, worst across 20 runs)
-├── Solution/                  # Production-ready SQL scripts and evaluation runners
+├── Solution/                  # SQL scripts and evaluation runners
 │   ├── 01_integrity_checks.sql       # 29 read-only diagnostic integrity checks
 │   ├── 02_schema_changes.sql         # Sequences and non-negative stock constraint (NOT VALID)
 │   ├── 03_place_order.sql            # Concurrency-safe order placement with row-level locks
@@ -74,7 +71,7 @@ The repository is organized by concern into dedicated directories:
 | **Flash-Sale Concurrency (400 buyers, 50 units)** | Unprotected (frequent overselling) | **2.34 s** | 50 sold, 350 refused cleanly, 0 errors, 0 oversold in [`race_test.py`](Resources/race_test.py). |
 | **Low-Stock Category Rollup** | "In a couple of seconds" | **2.9 ms** | Recursive category CTE with loop guard and depth limit; handles circular links. |
 | **Reorder Priority List (Improvement)** | Unusable static list (1,685 items / 42%) | **27.1 ms** | Ranks items by runout risk (days of cover) based on 28-day trailing velocity on local laptop copy. |
-| **Inventory Movement Audit Trail** | 144 unlogged mismatches | **Every DB change logged** | Trigger logs all movements; unlabelled changes tagged with user; negative stock blocked. |
+| **Inventory Movement Audit Trail** | 144 unlogged mismatches | **Every change made through the database is logged** | Trigger logs all movements; unlabelled changes tagged with user; negative stock blocked. |
 
 ---
 
@@ -103,7 +100,7 @@ bash Solution/fresh_load_test.sh
 ```
 
 **Expected Result:**
-- All tables loaded and indexed.
+- All tables loaded (no extra indexes are added; the solution does not add indexes by default).
 - `run_all.sql: all objects created`.
 - 29 integrity checks executed.
 - `race_test.py`: Test 1 (25/25 rounds OK), Test 2 (flash sale: 50 sold, 350 refused, 0 errors, ~2.34 s), Test 3 (oversell attempt refused cleanly), Test 4 (audit trail intact: 5 sold, 6 movements recorded).
