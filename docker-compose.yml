@@ -1,0 +1,36 @@
+services:
+  kloudkart:
+    container_name: kloudkart
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kloudkart}
+      POSTGRES_DB: ${POSTGRES_DB:-kloudkart}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    command: postgres -c max_connections=500 -c shared_buffers=128MB -c work_mem=4MB
+    volumes:
+      - .:/lab
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-kloudkart}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  race-test:
+    profiles: ["test"]
+    image: python:3.11-slim
+    depends_on:
+      kloudkart:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kloudkart}@kloudkart:5432/${POSTGRES_DB:-kloudkart}
+    volumes:
+      - .:/lab
+    working_dir: /lab
+    command: sh -c "pip install --no-cache-dir psycopg2-binary && python Resources/race_test.py"
+
+volumes:
+  pgdata:
