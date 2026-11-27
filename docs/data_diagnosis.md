@@ -4,6 +4,8 @@
 **Assessment:** DE03 SQL for Data Professionals
 **Scope:** Integrity audit of the supplied Kloud Kart database and the business risks relevant to the Monday customer-spending report, stock accuracy, and customer records. The "How it was found" parts carry the technical detail; the "What it costs" parts are written for the business reader.
 
+> **Canonical diagnosis document:** [`docs/data_findings.md`](data_findings.md) is the formal deliverable that follows the brief template. This document is the extended working audit and exists alongside it for reference.
+
 > **How to read the figures:** Unless stated otherwise, monetary figures are **currency units as stored in the dataset**. They are not labelled as cedis or dollars because the dataset's scale does not reconcile with the brief. The dataset holds 159,384 orders totalling about 487.06 million units over 13 months. That is about 3,056 units per order and roughly 400 orders a day on average (about 1,170 a day in the busiest month, August 2026), against the brief's "roughly 4,000 orders a day" and approximately $14 million annual turnover. Neither the volume nor the value reconciles. Nothing in this document depends on reconciling them, but the figures should be read as dataset measures, not verified financial-statement revenue.
 
 ## Executive assessment and ranking
@@ -232,7 +234,7 @@ Costs are stated only where the data supports them: counts, stored values, and u
 
 ## Decisions and limitations Nana should know
 
-1. **Customer spend definition:** "spent" counts orders whose normalised status is **completed, complete or shipped** (124,199 orders; 380.57M units as stored), and excludes pending, cancelled and refunded orders. The brief does not define "spent", so this is a working assumption requiring confirmation. In particular, confirm whether a shipped order is already paid.
+1. **Customer spend definition:** "spent" counts orders whose normalised status is **completed, complete or shipped** (124,199 orders including orphans; 380.57M units as stored). The formal deliverable (`data_findings.md`) uses an orphan-excluded basis of 124,044 orders and 380,138,602.03 units, which is what the Monday report returns. Both counts are correct on their own basis: 124,199 is the gross qualifying spend population; 124,044 is the population that can be joined to a valid customer. The brief does not define "spent", so this is a working assumption requiring confirmation. In particular, confirm whether a shipped order is already paid.
 2. **Transaction amount:** the report uses `orders.total_amount`, not line sums, because 2,398 headers differ from their lines and some differences may be discounts, tax or fees.
 3. **Stock truth:** log reconciliation is not a physical stocktake. The 84 mismatches and 14 negative balances need verification before any adjustment.
 4. **Customer identity:** a shared email plus a shared name is a candidate match, not proof. Phone numbers differ in every pair.

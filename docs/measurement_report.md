@@ -44,10 +44,10 @@ For order placement under contention, the requirement is zero overselling during
 
 | Query / stage | Before | After | Change |
 |---|---|---|---|
-| **Monday report (sample 100 customers)** | 1,412.8 ms (correlated subqueries) | 281.7 ms (all 40,420 customers) | **>2,000x faster effective throughput** |
-| **Monday report (all 40,420 customers)** | >560,000 subqueries (~9.5 minutes / timeout) | 281.7 ms (single-pass scan) | **Reduced from ~570 s to 0.28 s (99.95% reduction)** |
+| **Monday report (stand-in baseline, 100-customer sample)** | 1,412.8 ms (3 correlated subqueries on 100 customers) | 281.7 ms (all 40,420 customers, single pass) | **>2,000× faster effective throughput** |
+| **Monday report (all 40,420 customers, estimated full query)** | ~40 minutes (brief-stated runtime for Adwoa's full report) | 281.7 ms (single-pass scan) | **Reduced from ~40 min to 0.28 s** |
 | **Concurrent order placement (flash sale)** | Unprotected (frequent overselling and negative stock) | 2.34 s (400 threads, 50 sold, 350 refused, 0 errors) | **Zero oversold; 100% deterministic concurrency** |
-| **Inventory audit coverage** | Partial / disconnected (144 mismatched products) | 100% automated trigger coverage | **Every stock change logged with audit trail** |
+| **Inventory audit coverage** | Partial / disconnected (144 mismatched products) | Every change made through the database is logged | **All stock changes captured with audit trail** |
 
 ## Caveats
 
