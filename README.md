@@ -66,7 +66,7 @@ The repository is organized by concern into dedicated directories:
 
 | Target / Operation | Baseline / Stated | Achieved | Evidence |
 |---|---|---|---|
-| **Monday Report (all 40,420 customers)** | ~40 minutes (correlated subqueries) | **281.7 ms** (0.28 s) | Single-pass scan with aggregate `FILTER`; median of 20 runs in [`measure.sh`](Solution/measure.sh). |
+| **Monday Report (all 40,420 customers)** | ~40 minutes (brief-stated runtime; extrapolated from a 100-customer stand-in sample — see `04_report_baseline.sql`) | **281.7 ms** (0.28 s) | Single-pass scan with aggregate `FILTER`; median of 20 runs in [`measure.sh`](Solution/measure.sh). |
 | **Top 100 Spenders Ranking** | Extrapolated ~40 minutes | **248.8 ms** (0.25 s) | Window `RANK()` filter evaluated inside `monday_report()`. |
 | **Flash-Sale Concurrency (400 buyers, 50 units)** | Unprotected (frequent overselling) | **2.09 s** | 50 sold, 350 refused cleanly, 0 errors, 0 oversold in [`race_test.py`](Resources/race_test.py). |
 | **Low-Stock Category Rollup** | "In a couple of seconds" | **2.9 ms** | Recursive category CTE with loop guard and depth limit; handles circular links. |
@@ -78,6 +78,8 @@ The repository is organized by concern into dedicated directories:
 ## Quickstart & Verification
 
 All scripts are configured to run from the repository root (`Lab/`) using Git Bash on Windows or Linux bash.
+
+**Prerequisite:** the `kloudkart` PostgreSQL container must be running before executing any script below. The container name (`kloudkart`) and published port (5432) are the defaults in `docker-compose.yml`; if you rename them, set `POSTGRES_PASSWORD`, `POSTGRES_PORT`, and update the `PSQL` variable in `measure.sh` accordingly.
 
 ### 0. Start the Database Container (Docker Compose)
 To launch the PostgreSQL 18 container with the required connection settings (`max_connections=500` to support flash-sale concurrency) and volume mounts:
@@ -152,4 +154,9 @@ Documented in [`docs/improvement.md`](docs/improvement.md) and implemented in [`
 
 ## AI-Use Declaration
 
-> *"AI wrote and explained the SQL and checked my reasoning; the diagnosis ranking, decision rationale, ADRs, and memo are my own."*
+The SQL was written and explained by AI; I wrote the data diagnosis ranking, decision rationale, ADR text, and memo.
+
+Specifically:
+- **AI generated:** all `.sql` and `.sh` files, the Docker configuration, and the `measurement_report.md` benchmark tables.
+- **My own work:** the five ranked findings in `docs/data_findings.md` (problem identification, severity ranking, and cost reasoning), the decision rationale and rejected-alternative analysis in each ADR, the client memo (`docs/client_memo.md`), and the improvement justification (`docs/improvement.md`).
+- **AI checked:** the internal consistency of figures, the logical flow of ADR arguments, and formatting — but the judgements about risk, severity, and recommendation priority are mine.

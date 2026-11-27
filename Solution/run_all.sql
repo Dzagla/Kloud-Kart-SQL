@@ -7,8 +7,10 @@
 --     psql -v ON_ERROR_STOP=1 -f run_all.sql
 --
 -- Order matters: 02 creates the id sequences and the stock CHECK that
--- 03 (place_order) relies on; 05 creates order_status_map used by 05 only;
--- 07 creates the category views used by 09; 08 adds the audit trigger.
+-- 03 (place_order) relies on; 05 creates order_status_map used by the
+-- monday_report() function in 05; 07 creates v_category_tree used by 09;
+-- 08 adds the audit trigger; 09 (reorder_list) depends on v_category_tree
+-- from 07, so 07 must precede 09.
 -- NOT included on purpose:
 --   01_integrity_checks.sql   read-only diagnosis; run it any time
 --   04_report_baseline.sql    a measurement, not part of the system

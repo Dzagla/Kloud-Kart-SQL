@@ -19,8 +19,14 @@ echo "3/5 building the solution (run_all.sql)"
 docker exec -w /lab/Solution -i $C psql -U postgres -d $DB -v ON_ERROR_STOP=1 -f run_all.sql
 
 echo "4/5 integrity checks on the fresh build"
-docker exec -w /lab/Solution -i $C psql -U postgres -d $DB -f 01_integrity_checks.sql
+docker exec -w /lab/Solution -i $C psql -U postgres -d $DB -v ON_ERROR_STOP=1 -f 01_integrity_checks.sql
 
 echo "5/5 race_test.py, unmodified"
-DATABASE_URL="postgresql://postgres:kloudkart@localhost:5432/$DB" python Resources/race_test.py
+# Assumption: port 5432 is published from the container to the host (see docker-compose.yml ports).
+# If you renamed the container or changed the port, update POSTGRES_PORT and POSTGRES_PASSWORD
+# in .env before running this script. The DSN below reads those env vars with the same defaults
+# the compose file uses, so a single .env file controls both.
+PGPORT="${POSTGRES_PORT:-5432}"
+PGPASS="${POSTGRES_PASSWORD:-kloudkart}"
+DATABASE_URL="postgresql://postgres:${PGPASS}@localhost:${PGPORT}/$DB" python Resources/race_test.py
 echo "DONE: fresh load -> solution -> race test, no manual steps"

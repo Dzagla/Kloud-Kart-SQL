@@ -5,7 +5,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kloudkart}
+      # No default password: set POSTGRES_PASSWORD in .env before running.
+      # A missing value will cause postgres to refuse startup, which is the
+      # intended behaviour — do not add a fallback here.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-kloudkart}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -26,11 +29,11 @@ services:
       kloudkart:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kloudkart}@kloudkart:5432/${POSTGRES_DB:-kloudkart}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@kloudkart:5432/${POSTGRES_DB:-kloudkart}
     volumes:
       - .:/lab
     working_dir: /lab
-    command: sh -c "pip install --no-cache-dir psycopg2-binary && python Resources/race_test.py"
+    command: sh -c "pip install --no-cache-dir 'psycopg2-binary==2.9.10' && python Resources/race_test.py"
 
 volumes:
   pgdata:

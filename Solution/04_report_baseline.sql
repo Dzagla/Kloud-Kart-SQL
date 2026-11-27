@@ -1,8 +1,13 @@
--- 04_report_baseline.sql  (STAND-IN for Adwoa's real query - we do not have hers)
+-- 04_report_baseline.sql  (ILLUSTRATIVE STAND-IN — we do not have Adwoa's real query)
 -- Written the way slow Monday reports usually are: one correlated subquery per
 -- figure, so every figure re-reads the orders table once per customer.
--- Run on a SAMPLE of customers; extrapolate. Do not run all 40,420 on a laptop
--- unless you are prepared to wait.
+--
+-- This file runs only 1 of the 12 monthly subqueries on a 100-customer sample.
+-- The ~40-minute baseline quoted in ADR-002 and the README is EXTRAPOLATED from
+-- that sample, not measured directly:
+--     sample time (100 customers, 3 subqueries) ≈ 1.4–1.7 s
+--     → estimated full query (40,420 customers, 14 subqueries) ≈ 38–44 min
+-- Do not run all 40,420 customers with this file on a laptop.
 -- anchor = first day AFTER the last month reported
 \set anchor '2026-09-01'
 -- sample = how many customers to run
