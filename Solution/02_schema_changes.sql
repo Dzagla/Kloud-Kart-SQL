@@ -14,7 +14,11 @@
 --   D3. CHECK (stock_quantity >= 0) is added NOT VALID: it is enforced for
 --       every new write (including a manual UPDATE in a terminal), but does
 --       not reject the 14 products that already have negative stock. Those
---       need a business decision before the constraint can be VALIDATEd.
+--       need a physical recount before the constraint can be fully validated.
+--       Follow-up: once warehouse staff correct the 14 negative balances, run:
+--         ALTER TABLE products VALIDATE CONSTRAINT products_stock_non_negative;
+--       Until then, the constraint remains NOT VALID and those 14 rows are
+--       frozen against any UPDATE (see ADR-007).
 
 BEGIN;
 
